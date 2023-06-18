@@ -1,5 +1,5 @@
 # Adaptive SOR
-The code here is an examplary implementation of adaptive SOR (successive over-relaxation) via [AspectC++](https://www.aspectc.org), as described in the uploaded manuscript. The following instructions show how an old Fortran code can be adapted in a modular fashion using modern software engineering techniques, specifically AOP (aspect-oriented programming). 
+The code here is an examplary implementation of adaptive SOR (successive over-relaxation) via [AspectC++](https://www.aspectc.org), as described in the uploaded manuscript (ase2023.pdf). The following instructions show how an old Fortran code can be adapted in a modular fashion using modern software engineering techniques, specifically AOP (aspect-oriented programming). 
 
 ## Build Environment Setup
 The code has been tested and built on GNU/Linux, specifically on the Ubuntu 20.04 LTS distribution.
