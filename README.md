@@ -37,7 +37,7 @@ You can get the ITPACK 2C source *(dsrc2c.f)* and test code *(dtst2c.f)* at http
 4. Linking the object code with link-time wrap for the ITSOR calls
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `g++ *.o -Wl,--wrap=itsor_ -o dtst2c_ac -lgfortran`
 
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This will build a ITPACK test program, *'dtst2c_ac'*, where the SOR parameter, *omega*, is adjusted at each `ITSOR` calls. For the illustration purposes, we adjust the omega value by 0.995 at each `ITSOR` iteration in our adaptive scenario.   
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This will build a ITPACK test program, *'dtst2c_ac'*, where the SOR parameter, &omega;, is adjusted at each `ITSOR` calls. For the illustration purposes, we adjust the &omega; value by 0.995 at each `ITSOR` iteration in our adaptive scenario.   
 
 5. Running the adaptive ITPACK test program
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `./dtst2c_ac`
