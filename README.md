@@ -42,4 +42,4 @@ You can get the ITPACK 2C source *(dsrc2c.f)* and test code *(dtst2c.f)* at http
 5. Running the adaptive ITPACK test program
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `./dtst2c_ac`
 
-<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The adapted ITPACK test program will generate *'result.out'*, which shows how the adaptive version of ITPACK SOR operates. 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The adapted ITPACK test program will generate *'result.out'*, which shows how the adaptive version of ITPACK SOR operates. You can compare this with *'result_orig.out'* to see how differently the two versions of SOR behaved.
