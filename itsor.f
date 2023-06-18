@@ -1,0 +1,137 @@
+      SUBROUTINE ITSOR (NN,IA,JA,A,RHS,U,WK)    
+C       
+C ... FUNCTION:   
+C       
+C          THIS SUBROUTINE, ITSOR, PERFORMS ONE ITERATION OF THE    
+C          SUCCESSIVE OVERRELAXATION ALGORITHM.  IT IS CALLED BY SOR. 
+C       
+C ... PARAMETER LIST:       
+C       
+C          N      INPUT INTEGER.  DIMENSION OF THE MATRIX. (= NN)   
+C          IA,JA  INPUT INTEGER VECTORS.  THE TWO INTEGER ARRAYS OF 
+C                 THE SPARSE MATRIX REPRESENTATION.       
+C          A      INPUT D.P. VECTOR.  THE D.P. ARRAY OF THE SPARSE  
+C                 MATRIX REPRESENTATION.
+C          RHS    INPUT D.P. VECTOR.  CONTAINS THE RIGHT HAND SIDE  
+C                 OF THE MATRIX PROBLEM.
+C          U      INPUT/OUTPUT D.P. VECTOR.  ON INPUT, U CONTAINS THE 
+C                 SOLUTION VECTOR AFTER IN ITERATIONS.  ON OUTPUT,  
+C                 IT WILL CONTAIN THE NEWEST ESTIMATE FOR THE SOLUTION
+C                 VECTOR.   
+C          WK     D.P. ARRAY.  WORK VECTOR OF LENGTH N.   
+C       
+C ... SPECIFICATIONS FOR ARGUMENTS    
+C       
+      INTEGER IA(1),JA(1),NN
+      DOUBLE PRECISION A(1),RHS(NN),U(NN),WK(NN)
+C       
+C ... SPECIFICATIONS FOR LOCAL VARIABLES
+C       
+      INTEGER IP,IPHAT,IPSTAR,ISS,N   
+      DOUBLE PRECISION DNRM,H,OMEGAP,SPCRM1     
+      LOGICAL CHANGE,Q1     
+C       
+      DOUBLE PRECISION TAU  
+C       
+C *** BEGIN: ITPACK COMMON  
+C       
+      INTEGER IN,IS,ISYM,ITMAX,LEVEL,NOUT       
+      COMMON /ITCOM1/ IN,IS,ISYM,ITMAX,LEVEL,NOUT 
+C       
+      LOGICAL ADAPT,BETADT,CASEII,HALT,PARTAD   
+      COMMON /ITCOM2/ ADAPT,BETADT,CASEII,HALT,PARTAD     
+C       
+      DOUBLE PRECISION BDELNM,BETAB,CME,DELNNM,DELSNM,FF,GAMMA,OMEGA,QA,
+     *   QT,RHO,RRR,SIGE,SME,SPECR,SPR,DRELPR,STPTST,UDNM,ZETA      
+      COMMON /ITCOM3/ BDELNM,BETAB,CME,DELNNM,DELSNM,FF,GAMMA,OMEGA,QA, 
+     *   QT,RHO,RRR,SIGE,SME,SPECR,SPR,DRELPR,STPTST,UDNM,ZETA      
+C       
+C *** END  : ITPACK COMMON  
+C       
+C     DESCRIPTION OF VARIABLES IN COMMON BLOCKS IN SUBROUTINE SOR   
+C       
+C ... SET INITIAL PARAMETERS NOT ALREADY SET    
+C       
+      N = NN      
+      IF (IN.NE.0) GO TO 20 
+      CALL PSTOP (N,U,0.D0,0.D0,0,Q1) 
+      IF (ADAPT) GO TO 10   
+      CHANGE = .FALSE.      
+      IP = 0      
+      IPHAT = 2   
+      ISS = 0     
+      GO TO 30    
+C       
+   10 CHANGE = .TRUE.       
+      IP = 0      
+      OMEGAP = OMEGA
+      OMEGA = 1.D0
+      ISS = 0     
+      IPHAT = 2   
+      IPSTAR = 4  
+      IF (OMEGAP.LE.1.D0) CHANGE = .FALSE.      
+C       
+C ... RESET OMEGA, IPHAT, AND IPSTAR (CIRCLE A IN FLOWCHART)
+C       
+   20 IF (.NOT.CHANGE) GO TO 30       
+      CHANGE = .FALSE.      
+      IS = IS+1   
+      IP = 0      
+      ISS = 0     
+      OMEGA = DMIN1(OMEGAP,TAU(IS))   
+      IPHAT = MAX0(3,IFIX(SNGL((OMEGA-1.D0)/(2.D0-OMEGA)))) 
+      IPSTAR = IPSTR(OMEGA) 
+C       
+C ... COMPUTE U (IN + 1) AND NORM OF DEL(S,P) - CIRCLE B IN FLOW CHART
+C       
+   30 CONTINUE    
+      DELSNM = DELNNM       
+      SPCRM1 = SPECR
+      CALL DCOPY (N,RHS,1,WK,1)       
+      CALL PFSOR1 (N,IA,JA,A,U,WK)    
+      IF (DELNNM.EQ.0.D0) GO TO 40    
+      IF (IN.NE.0) SPECR = DELNNM/DELSNM
+      IF (IP.LT.IPHAT) GO TO 70       
+C       
+C ... STOPPING TEST, SET H  
+C       
+      IF (SPECR.GE.1.D0) GO TO 70     
+      IF (.NOT.(SPECR.GT.(OMEGA-1.D0))) GO TO 40
+      H = SPECR   
+      GO TO 50    
+   40 ISS = ISS+1 
+      H = OMEGA-1.D0
+C       
+C ... PERFORM STOPPING TEST.
+C       
+   50 CONTINUE    
+      DNRM = DELNNM**2      
+      CALL PSTOP (N,U,DNRM,H,1,Q1)    
+      IF (HALT) GO TO 70    
+C       
+C ... METHOD HAS NOT CONVERGED YET, TEST FOR CHANGING OMEGA 
+C       
+      IF (.NOT.ADAPT) GO TO 70
+      IF (IP.LT.IPSTAR) GO TO 70      
+      IF (OMEGA.GT.1.D0) GO TO 60     
+      CME = DSQRT(DABS(SPECR))
+      OMEGAP = 2.D0/(1.D0+DSQRT(DABS(1.D0-SPECR)))
+      CHANGE = .TRUE.       
+      GO TO 70    
+   60 IF (ISS.NE.0) GO TO 70
+      IF (SPECR.LE.(OMEGA-1.D0)**FF) GO TO 70   
+      IF ((SPECR+5.D-5).LE.SPCRM1) GO TO 70     
+C       
+C ... CHANGE PARAMETERS     
+C       
+      CME = (SPECR+OMEGA-1.D0)/(DSQRT(DABS(SPECR))*OMEGA) 
+      OMEGAP = 2.D0/(1.D0+DSQRT(DABS(1.D0-CME*CME)))      
+      CHANGE = .TRUE.       
+C       
+C ... OUTPUT INTERMEDIATE INFORMATION 
+C       
+   70 CALL ITERM (N,A,U,WK,3) 
+      IP = IP+1   
+C       
+      RETURN      
+      END 

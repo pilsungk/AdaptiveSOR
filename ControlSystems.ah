@@ -1,0 +1,28 @@
+#ifndef __CONTROLSYSTEMS_AH__
+#define __CONTROLSYSTEMS_AH__
+
+#include <iostream>
+using std::cout;
+using std::endl;
+
+/* 
+ * ControlSystems:
+ * Abstract class for algorithmic parameter adjustment in 
+ * AspectC++ 
+ */
+aspect ControlSystems {
+    public:
+        // pointcut at system state function 
+        pointcut virtual checkSystemState() = 0;
+
+        // update system parameter according to computation progress
+        virtual void adjustParam(void* state) = 0;
+        
+        // adjust the parameter to adapt to system state changes
+        advice execution(checkSystemState()) : after() {
+            cout << "advice execution:" << endl;
+            void* state = tjp->result();
+            adjustParam(state);
+        }
+};
+#endif 

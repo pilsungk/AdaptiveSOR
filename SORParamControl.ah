@@ -1,0 +1,42 @@
+#include <iostream>
+#include "ControlSystems.ah"
+using std::cout;
+using std::endl;
+
+// getter and setter for the SOR parameter in ITPACK
+#ifdef  __cplusplus
+extern "C" {
+#endif
+void set_omega_(double *new_omega);
+double get_omega_();
+#ifdef  __cplusplus
+}
+#endif
+
+/* 
+ * SORParamControl:
+ * AspectC++ aspect for implementing adaptive SOR parameter 
+ * adjustment for ITPACK's SOR subroutine
+ */
+aspect SORParamControl: public ControlSystems {
+    pointcut checkSystemState() = "% __wrap_itsor_(...)";
+
+    void adjustParam(void* state) {
+        double new_omega, omega;
+
+        omega = get_omega_();
+        cout << "adjustParam() " << endl;
+        cout << "Current omega = " << omega  << endl;
+
+        // we decrease omega by 0.005 for illustration purposes
+        new_omega = 0.995*omega;
+        cout << "New omega = " << new_omega  << endl;
+
+        setParam(new_omega);
+    }
+
+    void setParam(double param) {
+        set_omega_(&param);
+    }
+};
+
